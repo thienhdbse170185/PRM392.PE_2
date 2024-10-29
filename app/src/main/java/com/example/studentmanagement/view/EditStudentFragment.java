@@ -40,6 +40,7 @@ public class EditStudentFragment extends Fragment {
 
         studentViewModel = new ViewModelProvider(this).get(StudentViewModel.class);
         majorViewModel = new ViewModelProvider(this).get(MajorViewModel.class);
+        majorViewModel.loadMajors();
 
         setupGenderSpinner();
         setupMajorSpinner();

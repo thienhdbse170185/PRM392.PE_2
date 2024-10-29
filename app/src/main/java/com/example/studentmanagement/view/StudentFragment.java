@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.studentmanagement.R;
-import com.example.studentmanagement.databinding.FragmentItemListBinding;
+import com.example.studentmanagement.databinding.FragmentStudentBinding;
 import com.example.studentmanagement.model.Major;
 import com.example.studentmanagement.model.Student;
 import com.example.studentmanagement.view.adapter.MyStudentRecyclerViewAdapter;
@@ -25,26 +25,25 @@ import java.io.Serializable;
 import java.util.List;
 
 public class StudentFragment extends Fragment implements MyStudentRecyclerViewAdapter.OnStudentClickListener {
-    private FragmentItemListBinding binding;
+    private FragmentStudentBinding binding;
     private StudentViewModel studentViewModel;
     private MajorViewModel majorViewModel;
     private MyStudentRecyclerViewAdapter adapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentItemListBinding.inflate(inflater, container, false);
+        binding = FragmentStudentBinding.inflate(inflater, container, false);
 
         studentViewModel = new ViewModelProvider(this).get(StudentViewModel.class);
         majorViewModel = new ViewModelProvider(this).get(MajorViewModel.class);
         adapter = new MyStudentRecyclerViewAdapter(this);
 
         // Setup RecyclerView
-        binding.list.setLayoutManager(new LinearLayoutManager(binding.list.getContext()));
-        binding.list.setAdapter(adapter);
+        binding.studentList.setLayoutManager(new LinearLayoutManager(binding.studentList.getContext()));
+        binding.studentList.setAdapter(adapter);
 
         // Setup OnClickListener for the add student button
         binding.btnAddStudent.setOnClickListener(v -> navigateToAddStudentFragment());
-        binding.btnAddMajor.setOnClickListener(v -> showAddMajorDialog());
 
         // Observe student data from ViewModel
         studentViewModel.getStudents().observe(getViewLifecycleOwner(), this::updateStudentList);
@@ -60,13 +59,13 @@ public class StudentFragment extends Fragment implements MyStudentRecyclerViewAd
         // Observe success operations to show a success Snackbar
         studentViewModel.getSuccessMessage().observe(getViewLifecycleOwner(), this::showSuccessMessage);
 
-        majorViewModel.getSuccessMessage().observe(getViewLifecycleOwner(), message -> {
+        studentViewModel.getSuccessMessage().observe(getViewLifecycleOwner(), message -> {
             if (message != null) {
                 Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_LONG).show();
             }
         });
 
-        majorViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
+        studentViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
                 Snackbar.make(binding.getRoot(), error, Snackbar.LENGTH_LONG).show();
             }
@@ -123,30 +122,6 @@ public class StudentFragment extends Fragment implements MyStudentRecyclerViewAd
                 })
                 .setNegativeButton("No", (dialog, which) -> dialog.dismiss()) // Close dialog if not confirmed
                 .show();
-    }
-
-    private void showAddMajorDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_add_major, null);
-        builder.setView(dialogView);
-
-        final EditText etMajorName = dialogView.findViewById(R.id.etMajorName);
-
-        builder.setTitle("Add New Major")
-                .setPositiveButton("Save", (dialog, which) -> {
-                    String majorName = etMajorName.getText().toString().trim();
-                    if (!majorName.isEmpty()) {
-                        Major major = new Major(majorName);
-                        majorViewModel.addMajor(major);
-                    } else {
-                        Snackbar.make(binding.getRoot(), "Please enter a major name", Snackbar.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
 
     private void showErrorMessage(String message) {

@@ -6,32 +6,11 @@
     android:layout_height="match_parent"
     android:paddingHorizontal="16dp"
     tools:context=".view.StudentFragment">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-
-            <Button
-                android:id="@+id/btnAddStudent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Add Student" />
-
-            <Button
-                android:id="@+id/btnAddMajor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Add Major"
-                android:layout_marginLeft="8dp"
-                style="@style/Widget.Material3.Button.OutlinedButton"/>
-
-        </LinearLayout>
-    </LinearLayout>
+    <Button
+        android:id="@+id/btnAddStudent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Student" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -43,10 +22,11 @@
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="96dp">
+        android:layout_marginTop="96dp"
+        android:paddingBottom="80dp">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
+            android:id="@+id/studentList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 

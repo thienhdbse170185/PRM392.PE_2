@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.studentmanagement.databinding.FragmentItemBinding;
+import com.example.studentmanagement.databinding.FragmentItemStudentBinding;
 import com.example.studentmanagement.model.Student;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class MyStudentRecyclerViewAdapter extends RecyclerView.Adapter<MyStudent
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        FragmentItemBinding binding = FragmentItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        FragmentItemStudentBinding binding = FragmentItemStudentBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         return new ViewHolder(binding);
     }
 
@@ -61,7 +61,7 @@ public class MyStudentRecyclerViewAdapter extends RecyclerView.Adapter<MyStudent
         public final ImageButton buttonEdit;
         public final ImageButton buttonDelete;
 
-        public ViewHolder(FragmentItemBinding binding) {
+        public ViewHolder(FragmentItemStudentBinding binding) {
             super(binding.getRoot());
             this.studentEmail = binding.tvStudentEmail;
             this.studentName = binding.tvStudentName;

@@ -14,35 +14,28 @@ import retrofit2.Response;
 
 public class MajorRepository {
     private final MajorApiService apiService;
-    private final MutableLiveData<List<Major>> majors = new MutableLiveData<>();
-    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
     public MajorRepository() {
         apiService = ApiClient.getClient().create(MajorApiService.class);
     }
 
-    public MutableLiveData<List<Major>> getMajors() {
-        Call<List<Major>> call = apiService.getMajors();
-        call.enqueue(new Callback<List<Major>>() {
+    public void getMajors(final MajorCallback<List<Major>> callback) {
+        apiService.getMajors().enqueue(new Callback<List<Major>>() {
             @Override
-            public void onResponse(@NonNull Call<List<Major>> call, @NonNull Response<List<Major>> response) {
+            public void onResponse(Call<List<Major>> call, Response<List<Major>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    majors.setValue(response.body());
+                    List<Major> majors = response.body();
+                    callback.onSuccess(majors);
                 } else {
-                    errorMessage.setValue("Failed to retrieve the list of majors");
+                    callback.onFailure(new Exception("Failed to retrieve major list"));
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Major>> call, @NonNull Throwable t) {
-                errorMessage.setValue("Error: " + t.getMessage());
+            public void onFailure(Call<List<Major>> call, Throwable t) {
+                callback.onFailure(t);
             }
         });
-        return majors;
-    }
-
-    public MutableLiveData<String> getErrorMessage() {
-        return errorMessage;
     }
 
     public void addMajor(Major major, MajorCallback<Major> callback) {
@@ -59,6 +52,42 @@ public class MajorRepository {
 
             @Override
             public void onFailure(@NonNull Call<Major> call, @NonNull Throwable t) {
+                callback.onFailure(t);
+            }
+        });
+    }
+
+    public void updateMajor(String majorId, Major major, final MajorCallback<Major> callback) {
+        apiService.updateMajor(majorId, major).enqueue(new Callback<Major>() {
+            @Override
+            public void onResponse(Call<Major> call, Response<Major> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onFailure(new Exception("Failed to update major"));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Major> call, Throwable t) {
+                callback.onFailure(t);
+            }
+        });
+    }
+
+    public void deleteMajor(String majorId, final MajorCallback<Void> callback) {
+        apiService.deleteMajor(majorId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(null);
+                } else {
+                    callback.onFailure(new Exception("Failed to delete major"));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
                 callback.onFailure(t);
             }
         });

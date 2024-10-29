@@ -8,7 +8,7 @@
         android:id="@+id/studentFragment"
         android:name="com.example.studentmanagement.view.StudentFragment"
         android:label="Student Management"
-        tools:layout="@layout/fragment_item_list" >
+        tools:layout="@layout/fragment_student" >
         <action
             android:id="@+id/action_studentFragment_to_addStudentFragment"
             app:destination="@id/addStudentFragment" />
@@ -36,7 +36,7 @@
     </fragment>
     <fragment
         android:id="@+id/majorFragment"
-        android:name="com.example.studentmanagement.MajorFragment"
+        android:name="com.example.studentmanagement.view.MajorFragment"
         android:label="Student Management"
         tools:layout="@layout/fragment_major" />
 </navigation>

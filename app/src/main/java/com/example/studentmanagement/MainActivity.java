@@ -6,6 +6,7 @@ import com.example.studentmanagement.model.Student;
 import com.example.studentmanagement.view.AddStudentFragment;
 import com.example.studentmanagement.view.adapter.MyStudentRecyclerViewAdapter;
 import com.example.studentmanagement.viewmodel.StudentViewModel;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,7 +34,11 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+        appBarConfiguration = new AppBarConfiguration.Builder(R.id.studentFragment, R.id.majorFragment).build();
+
+        BottomNavigationView bottomNavigationView = binding.bottomNavigation;
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
     }
 

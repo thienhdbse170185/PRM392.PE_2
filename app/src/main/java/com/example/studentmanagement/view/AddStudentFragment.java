@@ -43,6 +43,7 @@ public class AddStudentFragment extends Fragment {
 
         studentViewModel = new ViewModelProvider(this).get(StudentViewModel.class);
         majorViewModel = new ViewModelProvider(this).get(MajorViewModel.class);
+        majorViewModel.loadMajors();
 
         setupGenderSpinner();
         setupMajorSpinner();
@@ -59,8 +60,10 @@ public class AddStudentFragment extends Fragment {
             }
             // Save the student and navigate back
             studentViewModel.addStudent(student);
+//            NavHostFragment.findNavController(this)
+//                    .navigate(R.id.action_addStudentFragment_to_studentFragment);
             NavHostFragment.findNavController(this)
-                    .navigate(R.id.action_addStudentFragment_to_studentFragment);
+                    .popBackStack();
         });
 
         return binding.getRoot();
