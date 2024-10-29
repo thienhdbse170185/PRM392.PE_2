@@ -5,7 +5,9 @@ import com.example.studentmanagement.model.Major;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 public interface MajorApiService {
@@ -14,4 +16,7 @@ public interface MajorApiService {
 
     @GET("majors/{id}")
     Call<Major> getMajorByID(@Path("id") String id);
+
+    @POST("majors")
+    Call<Major> addMajor(@Body Major major);
 }

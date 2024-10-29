@@ -1,6 +1,5 @@
 package com.example.studentmanagement.view;
 
-import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
@@ -24,8 +22,8 @@ import com.example.studentmanagement.viewmodel.StudentViewModel;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 public class EditStudentFragment extends Fragment {
 
@@ -77,7 +75,7 @@ public class EditStudentFragment extends Fragment {
             for (Major major : majors) {
                 majorNames.add(major.getName());
             }
-            ArrayAdapter<String> majorAdapter = new ArrayAdapter<>(getContext(),
+            ArrayAdapter<String> majorAdapter = new ArrayAdapter<>(requireContext(),
                     android.R.layout.simple_spinner_item, majorNames);
             binding.spinnerMajor.setAdapter(majorAdapter);
 
@@ -91,7 +89,7 @@ public class EditStudentFragment extends Fragment {
     }
 
     private void setupGenderSpinner() {
-        ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(getContext(),
+        ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(requireContext(),
                 R.array.gender_array, android.R.layout.simple_spinner_item);
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerGender.setAdapter(genderAdapter);
@@ -105,7 +103,7 @@ public class EditStudentFragment extends Fragment {
             for (Major major : majors) {
                 majorNames.add(major.getName());
             }
-            ArrayAdapter<String> majorAdapter = new ArrayAdapter<>(getContext(),
+            ArrayAdapter<String> majorAdapter = new ArrayAdapter<>(requireContext(),
                     android.R.layout.simple_spinner_item, majorNames);
             majorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             binding.spinnerMajor.setAdapter(majorAdapter);
@@ -124,20 +122,29 @@ public class EditStudentFragment extends Fragment {
                 Snackbar.make(v, validationError, Snackbar.LENGTH_LONG).show();
                 return;
             }
-            // Update the student and navigate back
+
+            // Gọi hàm update student
             studentViewModel.updateStudent(updatedStudent.getId(), updatedStudent);
-            NavHostFragment.findNavController(this)
-                    .navigate(R.id.action_editStudentFragment_to_studentFragment);
+
+            // Quan sát updateSuccess để điều hướng sau khi cập nhật xong
+            studentViewModel.getUpdateSuccess().observe(getViewLifecycleOwner(), isSuccess -> {
+                if (Boolean.TRUE.equals(isSuccess)) {
+                    NavHostFragment.findNavController(this).popBackStack(); // Quay lại màn hình trước
+                    studentViewModel.getUpdateSuccess().removeObservers(getViewLifecycleOwner());
+                }
+            });
         });
     }
 
+
+
     private Student bindStudent() {
         String id = student.getId(); // Keep the same ID for the existing student
-        String name = binding.etStudentName.getText().toString().trim();
-        String date = binding.tvStudentDate.getText().toString().trim(); // Get date from TextView
+        String name = Objects.requireNonNull(binding.etStudentName.getText()).toString().trim();
+        String date = Objects.requireNonNull(binding.tvStudentDate.getText()).toString().trim(); // Get date from TextView
         boolean gender = binding.spinnerGender.getSelectedItem().toString().equals("Male");
-        String email = binding.etStudentEmail.getText().toString().trim();
-        String address = binding.etStudentAddress.getText().toString().trim();
+        String email = Objects.requireNonNull(binding.etStudentEmail.getText()).toString().trim();
+        String address = Objects.requireNonNull(binding.etStudentAddress.getText()).toString().trim();
         String selectedMajorName = binding.spinnerMajor.getSelectedItem().toString();
 
         String majorId = null;

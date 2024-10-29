@@ -16,8 +16,9 @@ public class StudentViewModel extends ViewModel {
     private final MutableLiveData<List<Student>> students;
     private final MutableLiveData<Student> studentLiveData;
     private final MutableLiveData<String> errorMessage;
-    private final MutableLiveData<Boolean> isLoading; // Added isLoading state
+    private final MutableLiveData<Boolean> isLoading;
     private final MutableLiveData<String> successMessage;
+    private final MutableLiveData<Boolean> updateSuccess;
 
     public StudentViewModel() {
         this.studentRepository = new StudentRepository();
@@ -26,7 +27,7 @@ public class StudentViewModel extends ViewModel {
         this.errorMessage = new MutableLiveData<>();
         this.isLoading = new MutableLiveData<>(false);
         this.successMessage = new MutableLiveData<>();
-        loadStudents(); // Load students when ViewModel is created
+        updateSuccess = new MutableLiveData<>();
     }
 
     public LiveData<List<Student>> getStudents() {
@@ -47,6 +48,10 @@ public class StudentViewModel extends ViewModel {
 
     public LiveData<String> getSuccessMessage() {
         return successMessage;
+    }
+
+    public LiveData<Boolean> getUpdateSuccess() {
+        return updateSuccess;
     }
 
     public void loadStudents() {
@@ -95,25 +100,36 @@ public class StudentViewModel extends ViewModel {
     }
 
     public void updateStudent(String studentId, Student student) {
-        isLoading.setValue(true); // Set loading to true when updating a student
-        // Convert the date to ISO format before updating
+        isLoading.setValue(true);
         student.setDate(DateUtils.convertToISO8601(student.getDate()));
 
         studentRepository.updateStudent(studentId, student, new StudentRepository.StudentCallback<Student>() {
             @Override
             public void onSuccess(Student result) {
-                loadStudents(); // Reload students after updating
+                List<Student> currentStudents = students.getValue();
+                if (currentStudents != null) {
+                    for (int i = 0; i < currentStudents.size(); i++) {
+                        if (currentStudents.get(i).getId().equals(studentId)) {
+                            currentStudents.set(i, result);
+                            break;
+                        }
+                    }
+                    students.setValue(currentStudents);
+                }
                 successMessage.setValue("Student updated successfully!");
-                isLoading.setValue(false); // Set loading to false after the operation
+                isLoading.setValue(false);
+                updateSuccess.setValue(true); // Báo hiệu cập nhật thành công
             }
 
             @Override
             public void onFailure(Throwable t) {
                 errorMessage.setValue(t.getMessage());
-                isLoading.setValue(false); // Set loading to false on failure
+                isLoading.setValue(false);
+                updateSuccess.setValue(false); // Báo hiệu cập nhật thất bại
             }
         });
     }
+
 
     public void deleteStudent(String majorId, String studentId) {
         isLoading.setValue(true); // Set loading to true when deleting a student

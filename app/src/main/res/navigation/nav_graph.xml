@@ -34,4 +34,9 @@
             android:id="@+id/action_editStudentFragment_to_studentFragment"
             app:destination="@id/studentFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/majorFragment"
+        android:name="com.example.studentmanagement.MajorFragment"
+        android:label="Student Management"
+        tools:layout="@layout/fragment_major" />
 </navigation>

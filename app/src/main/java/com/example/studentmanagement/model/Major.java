@@ -9,6 +9,10 @@ public class Major {
         this.name = name;
     }
 
+    public Major(String name) {
+        this.name = name;
+    }
+
     public Major() {
 
     }

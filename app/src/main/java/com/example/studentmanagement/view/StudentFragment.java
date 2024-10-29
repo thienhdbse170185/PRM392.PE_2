@@ -5,16 +5,19 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
-import androidx.core.content.ContextCompat;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.studentmanagement.R;
 import com.example.studentmanagement.databinding.FragmentItemListBinding;
+import com.example.studentmanagement.model.Major;
 import com.example.studentmanagement.model.Student;
 import com.example.studentmanagement.view.adapter.MyStudentRecyclerViewAdapter;
+import com.example.studentmanagement.viewmodel.MajorViewModel;
 import com.example.studentmanagement.viewmodel.StudentViewModel;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -24,13 +27,15 @@ import java.util.List;
 public class StudentFragment extends Fragment implements MyStudentRecyclerViewAdapter.OnStudentClickListener {
     private FragmentItemListBinding binding;
     private StudentViewModel studentViewModel;
+    private MajorViewModel majorViewModel;
     private MyStudentRecyclerViewAdapter adapter;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentItemListBinding.inflate(inflater, container, false);
 
         studentViewModel = new ViewModelProvider(this).get(StudentViewModel.class);
+        majorViewModel = new ViewModelProvider(this).get(MajorViewModel.class);
         adapter = new MyStudentRecyclerViewAdapter(this);
 
         // Setup RecyclerView
@@ -39,6 +44,7 @@ public class StudentFragment extends Fragment implements MyStudentRecyclerViewAd
 
         // Setup OnClickListener for the add student button
         binding.btnAddStudent.setOnClickListener(v -> navigateToAddStudentFragment());
+        binding.btnAddMajor.setOnClickListener(v -> showAddMajorDialog());
 
         // Observe student data from ViewModel
         studentViewModel.getStudents().observe(getViewLifecycleOwner(), this::updateStudentList);
@@ -54,11 +60,26 @@ public class StudentFragment extends Fragment implements MyStudentRecyclerViewAd
         // Observe success operations to show a success Snackbar
         studentViewModel.getSuccessMessage().observe(getViewLifecycleOwner(), this::showSuccessMessage);
 
+        majorViewModel.getSuccessMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null) {
+                Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_LONG).show();
+            }
+        });
+
+        majorViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+                Snackbar.make(binding.getRoot(), error, Snackbar.LENGTH_LONG).show();
+            }
+        });
+
         // Setup SwipeRefreshLayout
         binding.swipeRefreshLayout.setOnRefreshListener(this::refreshStudentList);
 
+        studentViewModel.loadStudents();
+
         return binding.getRoot();
     }
+
 
     private void refreshStudentList() {
         studentViewModel.loadStudents(); // Call fetchStudents to refresh data
@@ -85,7 +106,7 @@ public class StudentFragment extends Fragment implements MyStudentRecyclerViewAd
     public void onEditClick(Student student) {
         // Navigate to edit screen
         Bundle bundle = new Bundle();
-        bundle.putSerializable("student", (Serializable) student); // Pass student data
+        bundle.putSerializable("student", student); // Pass student data
         NavHostFragment.findNavController(this)
                 .navigate(R.id.action_studentFragment_to_editStudentFragment, bundle);
     }
@@ -104,10 +125,33 @@ public class StudentFragment extends Fragment implements MyStudentRecyclerViewAd
                 .show();
     }
 
+    private void showAddMajorDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_add_major, null);
+        builder.setView(dialogView);
+
+        final EditText etMajorName = dialogView.findViewById(R.id.etMajorName);
+
+        builder.setTitle("Add New Major")
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String majorName = etMajorName.getText().toString().trim();
+                    if (!majorName.isEmpty()) {
+                        Major major = new Major(majorName);
+                        majorViewModel.addMajor(major);
+                    } else {
+                        Snackbar.make(binding.getRoot(), "Please enter a major name", Snackbar.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     private void showErrorMessage(String message) {
         if (message != null && !message.isEmpty()) {
             Snackbar snackbar = Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_LONG);
-            snackbar.getView().setBackgroundColor(ContextCompat.getColor(requireContext(), com.google.android.material.R.color.design_default_color_error));
             snackbar.show();
         }
     }
@@ -115,7 +159,6 @@ public class StudentFragment extends Fragment implements MyStudentRecyclerViewAd
     private void showSuccessMessage(String message) {
         if (message != null && !message.isEmpty()) {
             Snackbar snackbar = Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_LONG);
-            snackbar.getView().setBackgroundColor(ContextCompat.getColor(requireContext(), com.google.android.material.R.color.design_default_color_on_primary));
             snackbar.show();
         }
     }
